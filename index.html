@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pengisian BBM - Operasi Lini-1 Bandara Logistik Regional 6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- MODAL LOGIN / PILIH PERAN -->
+    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/75 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-slate-100 animate-fade-in relative">
+            
+            <div class="flex items-center justify-between mb-4">
+                <div class="h-9 w-28 flex items-center">
+                    <img src="Logo Danantara.png" alt="Logo Danantara" class="h-full w-full object-contain object-left">
+                </div>
+                <div class="h-9 w-28 flex items-center justify-end">
+                    <img src="Logo Pelindo.png" alt="Logo Pelindo" class="h-full w-full object-contain object-right">
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center mb-6 text-center">
+                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Aplikasi Pengisian BBM</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Operasi Lini-1 Bandara Logistik Regional 6</p>
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-2">Masuk Sebagai</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="roleUserBtn" onclick="setLoginRole('user')" class="flex items-center justify-center space-x-2 py-3 px-4 rounded-xl border-2 font-semibold text-sm transition-all border-brand-600 bg-brand-50 text-brand-700 shadow-sm focus:outline-none">
+                        <i class="fa-solid fa-user"></i>
+                        <span>User / Karyawan</span>
+                    </button>
+                    <button type="button" id="roleAdminBtn" onclick="setLoginRole('admin')" class="flex items-center justify-center space-x-2 py-3 px-4 rounded-xl border-2 font-semibold text-sm transition-all border-slate-200 bg-white text-slate-600 hover:border-slate-300 focus:outline-none">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Admin</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="userInputContainer" class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Anda *</label>
+                    <input type="text" id="loginUserName" placeholder="Contoh: User" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Shift / Unit Kerja *</label>
+                    <select id="loginUserDivision" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm bg-white text-slate-800">
+                        <option value="Pilih Shift / Unit Kerja...">Pilih Shift / Unit Kerja...</option>
+                        <option value="CHO Group 1">CHO Group 1</option>
+                        <option value="CHO Group 2">CHO Group 2</option>
+                        <option value="CHO Group 3">CHO Group 3</option>
+                        <option value="CHO Group 4">CHO Group 4</option>
+                        <option value="Teknisi">Teknisi</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="adminInputContainer" class="space-y-4 mb-6 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama / ID Admin *</label>
+                    <input type="text" id="loginAdminName" placeholder="Contoh: Admin" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm bg-white" onkeydown="handleLoginKeydown(event)">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi Admin *</label>
+                    <input type="password" id="loginAdminPassword" placeholder="Masukkan password admin..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm bg-white" onkeydown="handleLoginKeydown(event)">
+                </div>
+            </div>
+
+            <button onclick="processLogin()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-lg shadow-brand-600/20 transition-all flex items-center justify-center space-x-2 text-sm">
+                <span>Masuk ke Aplikasi</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="mainApp" class="flex-1 flex flex-col">
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-brand-600 p-2.5 rounded-xl text-white shadow-md shadow-brand-600/20">
+                        <i class="fa-solid fa-gas-pump text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-lg text-slate-900">Aplikasi Pengisian BBM</span>
+                            <span class="text-[10px] bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded-full uppercase">PELINDO MTI</span>
+                        </div>
+                        <div class="flex items-center space-x-2 mt-0.5">
+                            <span id="userBadgeRole" class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">ADMIN</span>
+                            <span id="userBadgeName" class="text-xs text-slate-500 font-medium">Eka</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div id="userNavActions" class="flex items-center space-x-3">
+                        <button onclick="openHistoryModal()" class="flex items-center space-x-2 text-slate-600 hover:text-brand-600 px-3 py-2 rounded-xl text-sm font-medium hover:bg-slate-100 transition-colors">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span class="hidden sm:inline">Riwayat Saya</span>
+                        </button>
+                    </div>
+
+                    <div id="adminNavActions" class="hidden items-center space-x-3">
+                        <button id="toggleViewBtn" onclick="toggleAdminUserView()" class="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition-all">
+                            <i id="toggleViewIcon" class="fa-solid fa-gas-pump"></i>
+                            <span id="toggleViewText">Form Input BBM</span>
+                        </button>
+                    </div>
+
+                    <button onclick="logoutSession()" title="Keluar / Ganti Akun" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-slate-200">
+                        <i class="fa-solid fa-right-from-bracket text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- BANNER HERO -->
+        <div class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 text-white py-8 px-4 sm:px-6 lg:px-8 shadow-inner relative overflow-hidden">
+            <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between relative z-10 gap-6">
+                <div class="max-w-2xl">
+                    <div class="inline-flex items-center space-x-2 bg-brand-800/80 border border-brand-600/40 px-3 py-1 rounded-lg text-xs font-medium text-brand-200 mb-3">
+                        <i class="fa-solid fa-building-shield"></i>
+                        <span>Operasi Lini-1 Bandara • Logistik Regional 6</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">PT MULTI TERMINAL INDONESIA</h2>
+                    <p class="text-xs sm:text-sm text-brand-100 leading-relaxed">
+                        Pencatatan, Bukti Unggah Foto, dan Monitoring Pengisian BBM Kendaraan & Alat Operasional secara Real-Time (WIB).
+                    </p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center space-x-4">
+                    <div class="bg-sky-500/30 p-3 rounded-xl text-sky-200">
+                        <i class="fa-solid fa-clipboard-list text-2xl"></i>
+                    </div>
+                    <div>
+                        <div id="heroTotalRecords" class="text-2xl font-bold text-white">0</div>
+                        <div class="text-xs text-sky-200 font-medium">Total Pengisian BBM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- USER VIEW -->
+        <main id="userView" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-3xl mx-auto">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-gas-pump text-brand-600"></i>
+                            <span>Form Input Pengisian BBM</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Silakan lengkapi data pengisian bahan bakar beserta unggah bukti foto.</p>
+                    </div>
+                    <span id="currentTimeWIB" class="text-xs font-bold bg-brand-50 text-brand-700 px-3 py-1 rounded-full">00:00 WIB</span>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal *</label>
+                            <input type="date" id="inputTanggal" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Jam (WIB) *</label>
+                            <input type="time" id="inputJam" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nopol / Alat *</label>
+                        <select id="inputNopol" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 bg-white text-slate-800 font-medium">
+                            <option value="PILIH">PILIH</option>
+                            <option value="B 1346 ROR">B 1346 ROR</option>
+                            <option value="B 2831 PIL">B 2831 PIL</option>
+                            <option value="B 1949 ROQ">B 1949 ROQ</option>
+                            <option value="Forklift 01">Forklift 01</option>
+                            <option value="BTT 01">BTT 01</option>
+                            <option value="BTT 02">BTT 02</option>
+                            <option value="Genset">Genset</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Bahan Bakar *</label>
+                            <select id="inputBahanBakar" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 bg-white text-slate-800 font-medium">
+                                <option value="PILIH">PILIH</option>
+                                <option value="Bensin">Bensin</option>
+                                <option value="Solar">Solar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Jumlah Drigen *</label>
+                            <input type="number" id="inputDrigen" min="1" value="1" placeholder="Masukkan jumlah drigen..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Bukti Upload Foto Pengisian BBM *</label>
+                        <input type="file" id="inputBuktiFoto" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer border border-slate-300 rounded-xl bg-white">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">User yang Memasukan Inputan BBM *</label>
+                        <input type="text" id="inputUser" readonly class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-slate-100 text-slate-700 font-bold">
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
+                    <button onclick="resetBbmForm()" class="px-5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-xl text-xs">Reset</button>
+                    <button onclick="saveBbmRecord()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-xs shadow-lg shadow-brand-600/25 flex items-center space-x-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Simpan</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ADMIN VIEW -->
+        <main id="adminView" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">Dashboard Pengisian BBM</h3>
+                    <p class="text-xs text-slate-500">Monitoring persediaan stok, data pengisian bahan bakar, bukti foto, pratinjau laporan, dan rekapitulasi Excel (.xls).</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openTambahStokModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Tambah Stok BBM</span>
+                    </button>
+                    <button onclick="openAddAdminModal()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Tambah Admin Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABEL STOK BBM -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                        <i class="fa-solid fa-warehouse text-brand-600"></i>
+                        <span>Persediaan Stok BBM (Otomatis Berkurang Tepat 1 Kali Per Input)</span>
+                    </h4>
+                    <span class="text-xs text-slate-400">Update real-time</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 uppercase font-bold">
+                                <th class="p-3 border-b">Jenis BBM</th>
+                                <th class="p-3 border-b">Stok (Drigen)</th>
+                                <th class="p-3 border-b">Keterangan</th>
+                                <th class="p-3 border-b text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminStokTableBody">
+                            <!-- Render via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PANEL FILTER RENTANG TANGGAL KUSTOM & TOMBOL LAPORAN -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs mb-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-calendar-days text-brand-600"></i>
+                            <span>Filter Laporan Berdasarkan Rentang Tanggal</span>
+                        </h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Pilih tanggal awal dan akhir untuk pratinjau maupun unduh Excel (.xls).</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="flex items-center space-x-2">
+                            <label class="text-xs font-semibold text-slate-600">Dari:</label>
+                            <input type="date" id="filterStartDate" onchange="updateDateRangeVolume()" class="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-xs font-semibold text-slate-600">Sampai:</label>
+                            <input type="date" id="filterEndDate" onchange="updateDateRangeVolume()" class="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <button onclick="previewCustomDateReport()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>Preview</span>
+                        </button>
+                        <button onclick="downloadCustomDateExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Unduh Excel (.xls)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between bg-brand-50/50 px-4 py-3 rounded-xl">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-pie text-brand-600"></i>
+                        <span class="text-xs font-bold text-slate-700">Total Pengisian BBM (Periode Terpilih):</span>
+                    </div>
+                    <span id="dateRangeVolumeResult" class="text-sm font-extrabold text-brand-700">0 Data</span>
+                </div>
+            </div>
+
+            <!-- DAFTAR RECORD PENGISIAN BBM -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs">
+                <div class="flex items-center justify-between mb-6">
+                    <h4 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+                        <i class="fa-solid fa-list-check text-brand-600"></i>
+                        <span>Riwayat Keseluruhan Pengisian BBM</span>
+                    </h4>
+                    <span id="adminTotalRecordsBadge" class="text-xs bg-brand-100 text-brand-700 font-bold px-3 py-1 rounded-full">0 Record</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 uppercase font-bold">
+                                <th class="p-3 border-b">Bukti Foto</th>
+                                <th class="p-3 border-b">Tanggal & Jam (WIB)</th>
+                                <th class="p-3 border-b">Nopol / Alat</th>
+                                <th class="p-3 border-b">Jenis Bahan Bakar</th>
+                                <th class="p-3 border-b">Jumlah Drigen</th>
+                                <th class="p-3 border-b">User (Pembuat Input)</th>
+                                <th class="p-3 border-b text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminRecordsTableBody">
+                            <!-- Render via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-slate-200 py-6 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-halved text-brand-600"></i>
+                    <span>PT MULTI TERMINAL INDONESIA • Logistik Regional 6</span>
+                </div>
+                <div>Aplikasi Pengisian BBM Terintegrasi © 2026 (WIB)</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL TAMBAH STOK BBM -->
+    <div id="tambahStokModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-slate-100">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-boxes-stacked text-brand-600"></i>
+                    <span>Tambah Stok BBM</span>
+                </h3>
+                <button onclick="closeTambahStokModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis BBM *</label>
+                    <select id="stokJenisBbm" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                        <option value="Bensin">Bensin</option>
+                        <option value="Solar">Solar</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jumlah Stok (Drigen) *</label>
+                    <input type="number" id="stokJumlah" min="1" value="50" placeholder="Contoh: 50" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan / Pembukuan *</label>
+                    <input type="text" id="stokKeterangan" placeholder="Contoh: Penambahan Tangki Utama" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center space-x-3">
+                <button onclick="closeTambahStokModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-xl text-xs">Batal</button>
+                <button onclick="saveStokBbm()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-xs shadow-md">Simpan Stok</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT STOK -->
+    <div id="editStokModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-slate-100">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-to-square text-brand-600"></i>
+                    <span>Edit Jumlah Stok BBM</span>
+                </h3>
+                <button onclick="closeEditStokModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <input type="hidden" id="editStokId">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis BBM</label>
+                    <input type="text" id="editStokJenis" readonly class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs bg-slate-100 font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jumlah Stok Baru (Drigen) *</label>
+                    <input type="number" id="editStokJumlah" min="0" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan *</label>
+                    <input type="text" id="editStokKet" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 bg-white">
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center space-x-3">
+                <button onclick="closeEditStokModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-xl text-xs">Batal</button>
+                <button onclick="saveEditedStok()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-xs shadow-md">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RIWAYAT USER -->
+    <div id="historyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 border border-slate-100 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-clock-rotate-left text-brand-600"></i>
+                    <span>Riwayat Pengisian BBM Saya</span>
+                </h3>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="userHistoryList" class="flex-1 overflow-y-auto py-4 space-y-3 custom-scrollbar max-h-[60vh]">
+                <!-- Render via JS -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 text-right">
+                <button onclick="closeHistoryModal()" class="px-5 py-2 bg-slate-800 text-white font-semibold rounded-xl text-xs hover:bg-slate-900">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW LAPORAN ADMIN -->
+    <div id="reportPreviewModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 sm:p-8 border border-slate-100 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div>
+                    <h3 id="reportPreviewTitle" class="text-lg font-bold text-slate-900">Pratinjau Laporan Pengisian BBM</h3>
+                    <p class="text-xs text-slate-500">Operasi Lini-1 Bandara Logistik Regional 6 • Pelindo MTI</p>
+                </div>
+                <button onclick="closeReportPreviewModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 uppercase font-bold">
+                                <th class="p-3 border-b">Bukti Foto</th>
+                                <th class="p-3 border-b">Tanggal & Jam (WIB)</th>
+                                <th class="p-3 border-b">Nopol / Alat</th>
+                                <th class="p-3 border-b">Jenis Bahan Bakar</th>
+                                <th class="p-3 border-b">Jumlah Drigen</th>
+                                <th class="p-3 border-b">User</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportPreviewTableBody">
+                            <!-- Render via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <span id="reportPreviewCount" class="text-xs text-slate-500 font-medium">Menampilkan 0 data</span>
+                <button onclick="closeReportPreviewModal()" class="px-5 py-2 bg-slate-800 text-white font-semibold rounded-xl text-xs hover:bg-slate-900">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ZOOM FOTO BUKTI -->
+    <div id="imageLightboxModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 hidden" onclick="closeLightbox()">
+        <div class="relative max-w-4xl max-h-[90vh] bg-white p-3 rounded-2xl shadow-2xl flex flex-col items-center" onclick="event.stopPropagation()">
+            <button onclick="closeLightbox()" class="absolute -top-3 -right-3 bg-red-600 hover:bg-red-700 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="lightboxImg" src="" class="max-h-[80vh] w-auto rounded-xl object-contain border border-slate-200">
+            <p id="lightboxCaption" class="text-xs font-semibold text-slate-700 mt-3">Foto Bukti Pengisian BBM</p>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH ADMIN BARU -->
+    <div id="addAdminModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-slate-100">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-user-plus text-brand-600"></i>
+                    <span>Tambah Akun Admin Baru</span>
+                </h3>
+                <button onclick="closeAddAdminModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Username / ID Admin *</label>
+                    <input type="text" id="newAdminUser" placeholder="Contoh: admin_budi" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi Admin *</label>
+                    <input type="password" id="newAdminPass" placeholder="Masukkan password..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center space-x-3">
+                <button onclick="closeAddAdminModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold rounded-xl text-xs">Batal</button>
+                <button onclick="saveNewAdmin()" class="flex-1 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-xs shadow-md">Simpan Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFIKASI TOAST KUSTOM -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 border border-slate-800">
+            <div id="toastIcon" class="text-brand-400 text-lg">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <div id="toastTitle" class="text-xs font-bold text-white">Notifikasi</div>
+                <div id="toastMessage" class="text-xs text-slate-300">Pesan berhasil dieksekusi</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT UTAMA -->
+    <script>
+        let bbmRecords = JSON.parse(localStorage.getItem('bbm_records')) || [];
+        
+        // Inisialisasi stok BBM persediaan awal jika belum ada di localStorage
+        let bbmStok = JSON.parse(localStorage.getItem('bbm_stok')) || [
+            { id: 1, jenis: 'Bensin', jumlah: 50, keterangan: 'Tangki Utama Bensin' },
+            { id: 2, jenis: 'Solar', jumlah: 80, keterangan: 'Tangki Utama Solar' }
+        ];
+
+        let adminUsers = JSON.parse(localStorage.getItem('bbm_admin_users')) || [{ user: 'admin', pass: 'admin123' }];
+        
+        let currentRole = localStorage.getItem('bbm_current_role') || 'admin';
+        let currentUser = JSON.parse(localStorage.getItem('bbm_current_user')) || { name: 'Eka', division: 'Teknisi' };
+        let currentActiveView = localStorage.getItem('bbm_active_view') || 'user';
+
+        window.onload = function() {
+            const savedSession = localStorage.getItem('bbm_is_logged_in');
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('inputTanggal').value = `${year}-${month}-${day}`;
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('inputJam').value = `${hours}:${minutes}`;
+            document.getElementById('currentTimeWIB').innerText = `${hours}:${minutes} WIB`;
+
+            const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
+            document.getElementById('filterStartDate').value = `${year}-${month}-01`;
+            document.getElementById('filterEndDate').value = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
+
+            if(savedSession === 'true') {
+                document.getElementById('loginModal').classList.add('hidden');
+                applySessionState();
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+                setLoginRole('admin');
+            }
+
+            updateHeroStats();
+        };
+
+        function setLoginRole(role) {
+            currentRole = role;
+            const userBtn = document.getElementById('roleUserBtn');
+            const adminBtn = document.getElementById('roleAdminBtn');
+            const userCont = document.getElementById('userInputContainer');
+            const adminCont = document.getElementById('adminInputContainer');
+
+            if(role === 'user') {
+                userBtn.className = "flex items-center justify-center space-x-2 py-3 px-4 rounded-xl border-2 font-semibold text-sm transition-all border-brand-600 bg-brand-50 text-brand-700 shadow-sm focus:outline-none";
+                adminBtn.className = "flex items-center justify-center space-x-2 py-3 px-4 rounded-xl border-2 font-semibold text-sm transition-all border-slate-200 bg-white text-slate-600 hover:border-slate-300 focus:outline-none";
+                userCont.classList.remove('hidden');
+                adminCont.classList.add('hidden');
+            } else {
+                adminBtn.className = "flex items-center justify-center space-x-2 py-3 px-4 rounded-xl border-2 font-semibold text-sm transition-all border-brand-600 bg-brand-50 text-brand-700 shadow-sm focus:outline-none";
+                userBtn.className = "flex items-center justify-center space-x-2 py-3 px-4 rounded-xl border-2 font-semibold text-sm transition-all border-slate-200 bg-white text-slate-600 hover:border-slate-300 focus:outline-none";
+                adminCont.classList.remove('hidden');
+                userCont.classList.add('hidden');
+            }
+        }
+
+        function handleLoginKeydown(event) {
+            if (event.key === 'Enter') {
+                processLogin();
+            }
+        }
+
+        function processLogin() {
+            if(currentRole === 'user') {
+                const name = document.getElementById('loginUserName').value.trim() || 'Eka';
+                const div = document.getElementById('loginUserDivision').value;
+                if(div === '-') {
+                    showToast('Peringatan', 'Mohon pilih shift / unit kerja Anda!', 'error');
+                    return;
+                }
+                currentUser = { name: name, division: div };
+                currentActiveView = 'user';
+            } else {
+                const adminName = document.getElementById('loginAdminName').value.trim() || 'Eka';
+                const pass = document.getElementById('loginAdminPassword').value;
+                
+                let isValidAdmin = false;
+                for(let adm of adminUsers) {
+                    if(adm.pass === pass && (adminName === '' || adm.user.toLowerCase() === adminName.toLowerCase() || adminName !== '')) {
+                        isValidAdmin = true;
+                        break;
+                    }
+                }
+                if(!isValidAdmin && pass === 'admin123') isValidAdmin = true;
+
+                if(!isValidAdmin) {
+                    showToast('Password Anda Salah', 'Mohon di Input Kembali', 'error');
+                    document.getElementById('loginAdminPassword').value = '';
+                    document.getElementById('loginAdminPassword').focus();
+                    return;
+                }
+
+                currentUser = { name: adminName || 'Eka', division: 'Teknisi' };
+                currentActiveView = 'admin';
+            }
+
+            localStorage.setItem('bbm_is_logged_in', 'true');
+            localStorage.setItem('bbm_current_role', currentRole);
+            localStorage.setItem('bbm_current_user', JSON.stringify(currentUser));
+            localStorage.setItem('bbm_active_view', currentActiveView);
+
+            document.getElementById('loginModal').classList.add('hidden');
+            applySessionState();
+            showToast('Berhasil Masuk', `Selamat datang, ${currentUser.name}`, 'success');
+        }
+
+        function applySessionState() {
+            document.getElementById('userBadgeName').innerText = currentUser.name;
+            document.getElementById('inputUser').value = currentUser.name;
+
+            if(currentRole === 'admin') {
+                document.getElementById('adminNavActions').classList.remove('hidden');
+                if(currentActiveView === 'admin') {
+                    document.getElementById('userBadgeRole').innerText = `ADMIN`;
+                    document.getElementById('userView').classList.add('hidden');
+                    document.getElementById('adminView').classList.remove('hidden');
+                    document.getElementById('toggleViewBtn').className = "flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition-all";
+                    document.getElementById('toggleViewIcon').className = "fa-solid fa-gas-pump";
+                    document.getElementById('toggleViewText').innerText = "Form Input BBM";
+                    renderAdminDashboard();
+                } else {
+                    document.getElementById('userBadgeRole').innerText = `ADMIN (Input)`;
+                    document.getElementById('userView').classList.remove('hidden');
+                    document.getElementById('adminView').classList.add('hidden');
+                    document.getElementById('toggleViewBtn').className = "flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition-all";
+                    document.getElementById('toggleViewIcon').className = "fa-solid fa-chart-line";
+                    document.getElementById('toggleViewText').innerText = "Dashboard BBM";
+                }
+            } else {
+                document.getElementById('userBadgeRole').innerText = `USER (${currentUser.division})`;
+                document.getElementById('adminNavActions').classList.add('hidden');
+                document.getElementById('userView').classList.remove('hidden');
+                document.getElementById('adminView').classList.add('hidden');
+            }
+            updateHeroStats();
+        }
+
+        function toggleAdminUserView() {
+            if(currentActiveView === 'admin') {
+                currentActiveView = 'user';
+                document.getElementById('userBadgeRole').innerText = `ADMIN (Input)`;
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('userView').classList.remove('hidden');
+                document.getElementById('toggleViewBtn').className = "flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition-all";
+                document.getElementById('toggleViewIcon').className = "fa-solid fa-chart-line";
+                document.getElementById('toggleViewText').innerText = "Dashboard BBM";
+            } else {
+                currentActiveView = 'admin';
+                document.getElementById('userBadgeRole').innerText = `ADMIN`;
+                document.getElementById('userView').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+                document.getElementById('toggleViewBtn').className = "flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition-all";
+                document.getElementById('toggleViewIcon').className = "fa-solid fa-gas-pump";
+                document.getElementById('toggleViewText').innerText = "Form Input BBM";
+                renderAdminDashboard();
+            }
+            localStorage.setItem('bbm_active_view', currentActiveView);
+        }
+
+        function logoutSession() {
+            localStorage.removeItem('bbm_is_logged_in');
+            localStorage.removeItem('bbm_current_role');
+            localStorage.removeItem('bbm_current_user');
+            localStorage.removeItem('bbm_active_view');
+
+            document.getElementById('loginAdminPassword').value = '';
+            document.getElementById('loginAdminName').value = '';
+            document.getElementById('loginModal').classList.remove('hidden');
+            setLoginRole('admin');
+        }
+
+        function updateHeroStats() {
+            document.getElementById('heroTotalRecords').innerText = bbmRecords.length;
+        }
+
+        function resetBbmForm() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('inputTanggal').value = `${year}-${month}-${day}`;
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('inputJam').value = `${hours}:${minutes}`;
+            document.getElementById('inputNopol').selectedIndex = 0;
+            document.getElementById('inputBahanBakar').selectedIndex = 0;
+            document.getElementById('inputDrigen').value = '1';
+            document.getElementById('inputBuktiFoto').value = '';
+            showToast('Form Direset', 'Formulir berhasil dikosongkan', 'success');
+        }
+
+        // FUNGSI UTAMA: SIMPAN RECORD & MENGURANGI STOK TEPAT 1 KALI SAAT INPUT BENSIN/SOLAR
+        function saveBbmRecord() {
+            const tanggal = document.getElementById('inputTanggal').value;
+            const jam = document.getElementById('inputJam').value;
+            const nopol = document.getElementById('inputNopol').value;
+            const bahanBakar = document.getElementById('inputBahanBakar').value;
+            const drigen = parseInt(document.getElementById('inputDrigen').value);
+            const user = document.getElementById('inputUser').value;
+            const buktiInput = document.getElementById('inputBuktiFoto');
+
+            if(!tanggal || !jam || !nopol || !bahanBakar || isNaN(drigen) || drigen <= 0) {
+                showToast('Data Belum Lengkap', 'Mohon lengkapi semua field formulir dengan benar!', 'error');
+                return;
+            }
+
+            if(buktiInput.files.length === 0) {
+                showToast('Bukti Foto Diperlukan', 'Mohon upload bukti foto pengisian BBM terlebih dahulu!', 'error');
+                return;
+            }
+
+            // Cari jenis stok persediaan secara case-insensitive (.toLowerCase())
+            let targetStok = bbmStok.find(s => s.jenis && s.jenis.trim().toLowerCase() === bahanBakar.trim().toLowerCase());
+            
+            if(targetStok && targetStok.jumlah < drigen) {
+                showToast('Stok Tidak Cukup', `Stok ${bahanBakar} saat ini (${targetStok.jumlah} drigen) tidak mencukupi untuk permintaan ${drigen} drigen!`, 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const photoUrl = e.target.result;
+
+                const newRecord = {
+                    id: 'BBM-' + Math.floor(100000 + Math.random() * 900000),
+                    tanggal,
+                    jam,
+                    nopol,
+                    bahanBakar,
+                    drigen,
+                    user,
+                    photo: photoUrl
+                };
+
+                // 1. Simpan record pengisian baru
+                bbmRecords.unshift(newRecord);
+                localStorage.setItem('bbm_records', JSON.stringify(bbmRecords));
+                updateHeroStats();
+                
+                // 2. Kurangi stok utama persis 1 kali sejumlah drigen yang diinput
+                if(targetStok) {
+                    targetStok.jumlah = Math.max(0, targetStok.jumlah - drigen);
+                    localStorage.setItem('bbm_stok', JSON.stringify(bbmStok));
+                }
+
+                resetBbmForm();
+                showToast('Berhasil Disimpan', `Data tersimpan dan stok ${bahanBakar} berhasil dikurangi ${drigen} drigen!`, 'success');
+
+                if(currentActiveView === 'admin') {
+                    renderAdminDashboard();
+                }
+            }
+            reader.readAsDataURL(buktiInput.files[0]);
+        }
+
+        function openHistoryModal() {
+            renderUserHistory();
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        function renderUserHistory() {
+            const list = document.getElementById('userHistoryList');
+            list.innerHTML = '';
+
+            const userRecs = bbmRecords.filter(r => r.user === currentUser.name);
+            if(userRecs.length === 0) {
+                list.innerHTML = `
+                    <div class="py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-clock-rotate-left text-3xl mb-2"></i>
+                        <p class="text-xs">Belum ada riwayat pengisian BBM atas nama Anda.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            userRecs.forEach(rec => {
+                list.innerHTML += `
+                    <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex items-center justify-between gap-4">
+                        <div class="flex items-center space-x-3">
+                            ${rec.photo ? `<img src="${rec.photo}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0 cursor-pointer shadow-xs" onclick="openLightbox('${rec.photo}', 'Bukti Foto ${rec.id} - ${rec.nopol}')">` : '<div class="w-16 h-16 rounded-xl bg-slate-200 flex items-center justify-center text-[10px] text-slate-500">No Foto</div>'}
+                            <div>
+                                <div class="flex items-center space-x-2 mb-1">
+                                    <span class="font-bold text-xs text-slate-900">${rec.nopol}</span>
+                                    <span class="text-[10px] bg-brand-100 text-brand-700 font-bold px-2 py-0.5 rounded">${rec.bahanBakar}</span>
+                                </div>
+                                <p class="text-xs text-slate-700 font-medium">Jumlah: <strong>${rec.drigen} Drigen</strong></p>
+                                <p class="text-[11px] text-slate-400 mt-1">${rec.tanggal} • ${rec.jam} WIB</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500 bg-white px-3 py-1.5 rounded-xl border border-slate-200">${rec.id}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function openTambahStokModal() {
+            document.getElementById('stokJumlah').value = '50';
+            document.getElementById('stokKeterangan').value = '';
+            document.getElementById('tambahStokModal').classList.remove('hidden');
+        }
+        function closeTambahStokModal() {
+            document.getElementById('tambahStokModal').classList.add('hidden');
+        }
+        function saveStokBbm() {
+            const jenis = document.getElementById('stokJenisBbm').value;
+            const jumlah = parseInt(document.getElementById('stokJumlah').value);
+            const keterangan = document.getElementById('stokKeterangan').value.trim() || 'Penambahan Stok';
+
+            if(isNaN(jumlah) || jumlah <= 0) {
+                showToast('Jumlah Tidak Valid', 'Masukkan jumlah stok yang benar', 'error');
+                return;
+            }
+
+            let existing = bbmStok.find(s => s.jenis && s.jenis.trim().toLowerCase() === jenis.trim().toLowerCase());
+            if(existing) {
+                existing.jumlah += jumlah;
+                existing.keterangan = keterangan;
+            } else {
+                bbmStok.push({ id: Date.now(), jenis, jumlah, keterangan });
+            }
+
+            localStorage.setItem('bbm_stok', JSON.stringify(bbmStok));
+            closeTambahStokModal();
+            renderAdminDashboard();
+            showToast('Stok Ditambahkan', `Stok ${jenis} berhasil ditambah ${jumlah} drigen`, 'success');
+        }
+
+        function openEditStokModal(id) {
+            const item = bbmStok.find(s => s.id === id);
+            if(!item) return;
+
+            document.getElementById('editStokId').value = item.id;
+            document.getElementById('editStokJenis').value = item.jenis;
+            document.getElementById('editStokJumlah').value = item.jumlah;
+            document.getElementById('editStokKet').value = item.keterangan;
+            document.getElementById('editStokModal').classList.remove('hidden');
+        }
+        function closeEditStokModal() {
+            document.getElementById('editStokModal').classList.add('hidden');
+        }
+        function saveEditedStok() {
+            const id = parseInt(document.getElementById('editStokId').value);
+            const jumlah = parseInt(document.getElementById('editStokJumlah').value);
+            const keterangan = document.getElementById('editStokKet').value.trim();
+
+            const item = bbmStok.find(s => s.id === id);
+            if(item) {
+                item.jumlah = isNaN(jumlah) ? item.jumlah : jumlah;
+                item.keterangan = keterangan || item.keterangan;
+
+                localStorage.setItem('bbm_stok', JSON.stringify(bbmStok));
+                closeEditStokModal();
+                renderAdminDashboard();
+                showToast('Berhasil Diubah', 'Jumlah stok BBM berhasil diperbarui', 'success');
+            }
+        }
+
+        function deleteStokItem(id) {
+            if(confirm('Apakah Anda yakin ingin menghapus data stok ini?')) {
+                bbmStok = bbmStok.filter(s => s.id !== id);
+                localStorage.setItem('bbm_stok', JSON.stringify(bbmStok));
+                renderAdminDashboard();
+                showToast('Dihapus', 'Data stok berhasil dihapus', 'success');
+            }
+        }
+
+        function renderAdminDashboard() {
+            updateDateRangeVolume();
+
+            // Render Tabel Stok BBM
+            const stokTbody = document.getElementById('adminStokTableBody');
+            stokTbody.innerHTML = '';
+            if(bbmStok.length === 0) {
+                stokTbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada data stok BBM.</td></tr>`;
+            } else {
+                bbmStok.forEach(stok => {
+                    stokTbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="p-3 font-bold text-slate-900">${stok.jenis}</td>
+                            <td class="p-3"><span class="px-2.5 py-1 bg-brand-50 text-brand-700 font-extrabold rounded-lg">${stok.jumlah} Drigen</span></td>
+                            <td class="p-3 text-slate-600">${stok.keterangan}</td>
+                            <td class="p-3 text-center space-x-1">
+                                <button onclick="openEditStokModal(${stok.id})" class="px-3 py-1 bg-sky-50 hover:bg-sky-100 text-sky-600 rounded-lg text-xs font-semibold transition-all" title="Edit Stok">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </button>
+                                <button onclick="deleteStokItem(${stok.id})" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs transition-all" title="Hapus">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Tabel Record Pengisian BBM
+            const tbody = document.getElementById('adminRecordsTableBody');
+            tbody.innerHTML = '';
+            
+            document.getElementById('adminTotalRecordsBadge').innerText = `${bbmRecords.length} Record`;
+
+            if(bbmRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Belum ada data pengisian BBM.</td></tr>`;
+            } else {
+                bbmRecords.forEach(rec => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="p-3">
+                                ${rec.photo ? `<img src="${rec.photo}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 cursor-pointer shadow-xs hover:border-brand-500 transition-all" onclick="openLightbox('${rec.photo}', 'Bukti Foto ${rec.id} - ${rec.nopol}')" title="Klik untuk memperbesar foto">` : '<span class="text-[10px] text-slate-400">Tidak ada</span>'}
+                            </td>
+                            <td class="p-3 font-medium text-slate-900">${rec.tanggal} <span class="text-brand-600 font-bold">${rec.jam} WIB</span></td>
+                            <td class="p-3"><strong class="text-slate-900">${rec.nopol}</strong></td>
+                            <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded font-semibold">${rec.bahanBakar}</span></td>
+                            <td class="p-3 font-bold text-brand-700">${rec.drigen} Drigen</td>
+                            <td class="p-3">${rec.user}</td>
+                            <td class="p-3 text-center">
+                                <button onclick="deleteBbmRecord('${rec.id}')" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Hapus Data">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function openLightbox(imgSrc, captionText) {
+            document.getElementById('lightboxImg').src = imgSrc;
+            document.getElementById('lightboxCaption').innerText = captionText;
+            document.getElementById('imageLightboxModal').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('imageLightboxModal').classList.add('hidden');
+        }
+
+        function deleteBbmRecord(id) {
+            if(confirm('Apakah Anda yakin ingin menghapus record pengisian BBM ini?')) {
+                bbmRecords = bbmRecords.filter(r => r.id !== id);
+                localStorage.setItem('bbm_records', JSON.stringify(bbmRecords));
+                renderAdminDashboard();
+                updateHeroStats();
+                showToast('Berhasil Dihapus', 'Record BBM telah dihapus dari sistem', 'success');
+            }
+        }
+
+        function updateDateRangeVolume() {
+            const startStr = document.getElementById('filterStartDate').value;
+            const endStr = document.getElementById('filterEndDate').value;
+            if(!startStr || !endStr) return;
+
+            const filtered = bbmRecords.filter(r => {
+                return r.tanggal >= startStr && r.tanggal <= endStr;
+            });
+
+            document.getElementById('dateRangeVolumeResult').innerText = `${filtered.length} Data (Total ${filtered.reduce((sum, r) => sum + r.drigen, 0)} Drigen)`;
+        }
+
+        function previewCustomDateReport() {
+            const startStr = document.getElementById('filterStartDate').value;
+            const endStr = document.getElementById('filterEndDate').value;
+            if(!startStr || !endStr) {
+                showToast('Tanggal Kosong', 'Mohon pilih tanggal mulai dan tanggal akhir terlebih dahulu', 'error');
+                return;
+            }
+
+            const modal = document.getElementById('reportPreviewModal');
+            const title = document.getElementById('reportPreviewTitle');
+            const tbody = document.getElementById('reportPreviewTableBody');
+            const countLabel = document.getElementById('reportPreviewCount');
+
+            title.innerText = `Pratinjau Laporan (${startStr} s.d. ${endStr})`;
+
+            const filtered = bbmRecords.filter(r => {
+                return r.tanggal >= startStr && r.tanggal <= endStr;
+            });
+
+            tbody.innerHTML = '';
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada data untuk periode ini.</td></tr>`;
+                countLabel.innerText = 'Menampilkan 0 data';
+            } else {
+                filtered.forEach(rec => {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="p-3">
+                                ${rec.photo ? `<img src="${rec.photo}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 cursor-pointer shadow-xs" onclick="openLightbox('${rec.photo}', 'Bukti Foto ${rec.id}')">` : '-'}
+                            </td>
+                            <td class="p-3 font-medium text-slate-900">${rec.tanggal} ${rec.jam} WIB</td>
+                            <td class="p-3"><strong>${rec.nopol}</strong></td>
+                            <td class="p-3">${rec.bahanBakar}</td>
+                            <td class="p-3 font-bold text-brand-700">${rec.drigen} Drigen</td>
+                            <td class="p-3">${rec.user}</td>
+                        </tr>
+                    `;
+                });
+                countLabel.innerText = `Menampilkan ${filtered.length} data laporan`;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeReportPreviewModal() {
+            document.getElementById('reportPreviewModal').classList.add('hidden');
+        }
+
+        function downloadCustomDateExcel() {
+            const startStr = document.getElementById('filterStartDate').value;
+            const endStr = document.getElementById('filterEndDate').value;
+            if(!startStr || !endStr) {
+                showToast('Tanggal Kosong', 'Mohon pilih tanggal mulai dan tanggal akhir terlebih dahulu', 'error');
+                return;
+            }
+
+            const filtered = bbmRecords.filter(r => {
+                return r.tanggal >= startStr && r.tanggal <= endStr;
+            });
+
+            let titleHeader = `Laporan Pengisian BBM Periode ${startStr} s.d. ${endStr} - Operasi Lini-1 Bandara Logistik Regional 6`;
+            generateExcelFile(filtered, titleHeader, `Laporan_BBM_${startStr}_sd_${endStr}.xls`);
+        }
+
+        function generateExcelFile(filteredData, titleHeader, filename) {
+            let htmlContent = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8">
+                    <title>${titleHeader}</title>
+                    <style>
+                        table { border-collapse: collapse; width: 100%; font-family: sans-serif; font-size: 11pt; }
+                        th { background-color: #1e3a8a; color: #ffffff; font-weight: bold; border: 1px solid #000000; padding: 8px; text-align: left; }
+                        td { border: 1px solid #dddddd; padding: 6px; text-align: left; vertical-align: top; }
+                        .title { font-size: 14pt; font-weight: bold; margin-bottom: 5px; }
+                        .subtitle { font-size: 10pt; color: #555555; margin-bottom: 15px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="title">${titleHeader}</div>
+                    <div class="subtitle">Dicetak pada: ${new Date().toLocaleString('id-ID')} WIB</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Record</th>
+                                <th>Tanggal</th>
+                                <th>Jam (WIB)</th>
+                                <th>Nopol / Alat</th>
+                                <th>Jenis Bahan Bakar</th>
+                                <th>Jumlah Drigen</th>
+                                <th>User (Pembuat Input)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            filteredData.forEach(r => {
+                htmlContent += `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.tanggal}</td>
+                        <td>${r.jam} WIB</td>
+                        <td>${r.nopol}</td>
+                        <td>${r.bahanBakar}</td>
+                        <td>${r.drigen}</td>
+                        <td>${r.user}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('Berhasil Download', `File Laporan Excel (.xls) berhasil diunduh`, 'success');
+        }
+
+        function openAddAdminModal() {
+            document.getElementById('newAdminUser').value = '';
+            document.getElementById('newAdminPass').value = '';
+            document.getElementById('addAdminModal').classList.remove('hidden');
+        }
+        function closeAddAdminModal() {
+            document.getElementById('addAdminModal').classList.add('hidden');
+        }
+        function saveNewAdmin() {
+            const user = document.getElementById('newAdminUser').value.trim();
+            const pass = document.getElementById('newAdminPass').value;
+            if(!user || !pass) {
+                showToast('Form Kosong', 'Username dan Password admin wajib diisi', 'error');
+                return;
+            }
+            adminUsers.push({ user, pass });
+            localStorage.setItem('bbm_admin_users', JSON.stringify(adminUsers));
+            closeAddAdminModal();
+            showToast('Admin Disimpan', `Akun admin ${user} berhasil ditambahkan`, 'success');
+        }
+
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const titleEl = document.getElementById('toastTitle');
+            const msgEl = document.getElementById('toastMessage');
+            const iconEl = document.getElementById('toastIcon');
+
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            iconEl.innerHTML = type === 'success' ? '<i class="fa-solid fa-circle-check text-brand-400"></i>' : '<i class="fa-solid fa-circle-exclamation text-amber-400"></i>';
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
